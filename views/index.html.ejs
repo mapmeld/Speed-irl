@@ -78,10 +78,11 @@ function calcSpeed(loc, time1, loc2, time2){
 	loc2 = new google.maps.LatLng( loc2[0], loc2[1] );
 	var dist = google.maps.geometry.spherical.computeDistanceBetween( loc, loc2 );
 	var timediff = time2 - time1;
-	if(timediff < 0){
+	var speed = (dist / timediff * 1000) * 2.23693629;
+	if(speed < 0 || speed > 100){
 		return 0;
 	}
-	return (dist / timediff * 1000) * 2.23693629;
+	return speed;
 }
 		</script>
 		<style type="text/css">
