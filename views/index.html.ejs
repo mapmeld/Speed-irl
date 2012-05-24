@@ -31,6 +31,7 @@ function pollBuses(){
 var speed_est = { };
 var last_loc = { };
 var last_time = { };
+var markers = { };
 function updateBuses(rt){
 	var updateDate = new Date();
 	document.getElementById("allbuses").innerHTML = "";
@@ -49,12 +50,21 @@ function updateBuses(rt){
 				}
 			}
 			else{
+				markers[ rt.items[b].id ] = new google.maps.Marker({
+					position: new google.maps.LatLng( rt.items[b].latitude, rt.items[b].longitude ),
+					map: map
+				});
 				li.innerHTML = rt.items[b].id;
 			}
 		}
 		else{
 			if(last_loc[ rt.items[b].id ][0] != rt.items[b].latitude || last_loc[ rt.items[b].id ][1] != rt.items[b].longitude ){
 				speed_est[ rt.items[b].id ] = calcSpeed(last_loc[ rt.items[b].id ], last_time[ rt.items[b].id ], [ rt.items[b].latitude, rt.items[b].longitude ], updateDate - 1000 * rt.items[b].seconds_since_report );
+				markers[ rt.items[b].id ].setMap(null);
+				markers[ rt.items[b].id ] = new google.maps.Marker({
+					position: new google.maps.LatLng( rt.items[b].latitude, rt.items[b].longitude ),
+					map: map
+				});
 			}
 			li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] );
 		}
