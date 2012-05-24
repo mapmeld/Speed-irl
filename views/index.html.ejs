@@ -15,7 +15,7 @@ function init(){
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	map = new google.maps.Map(document.getElementById("map"), mapOptions);
-	setInterval( 50000, pollBuses );
+	setInterval( pollBuses, 40000 );
 	pollBuses();
 }
 function pollBuses(){
