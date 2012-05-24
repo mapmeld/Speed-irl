@@ -7,7 +7,7 @@
 var map, infoWindow, buses, speedBus;
 function init(){
 	// set up Google Maps, pointed at downtown LA
-	var ctr = new google.maps.LatLng(34.047114,-118.251925);
+	var ctr = new google.maps.LatLng(34.047114,-118.261925);
 	var z = 12;
 	var mapOptions = {
 		center: ctr,
@@ -26,13 +26,15 @@ html, body, #map{
 }
 #overlay{
 	position: fixed;
-	left: 20px;
-	top: 20px;
+	right: 20px;
+	bottom: 20px;
+	width: 220px;
+	padding: 10px;
 	background-color: #fff;
 }
 		</style>
 	</head>
-	<body>
+	<body onload="init()">
 		<div id="map">
 		</div>
 		<div id="overlay">
