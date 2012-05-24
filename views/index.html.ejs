@@ -43,7 +43,7 @@ function updateBuses(rt){
 				// make an estimate, if the location is changed
 				if(last_loc[ rt.items[b].id ][0] != rt.items[b].latitude || last_loc[ rt.items[b].id ][1] != rt.items[b].longitude ){
 					speed_est[ rt.items[b].id ] = calcSpeed(last_loc[ rt.items[b].id ], last_time[ rt.items[b].id ], [ rt.items[b].latitude, rt.items[b].longitude ], updateDate - 1000 * rt.items[b].seconds_since_report );
-					li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] );
+					li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] ) + " mph";
 				}
 				else{
 					li.innerHTML = rt.items[b].id;
