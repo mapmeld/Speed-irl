@@ -66,7 +66,7 @@ function updateBuses(rt){
 					map: map
 				});
 			}
-			li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] );
+			li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] ) + " mph";
 		}
 		last_loc[ rt.items[b].id ] = [ rt.items[b].latitude , rt.items[b].longitude ];
 		last_time[ rt.items[b].id ] = updateDate - 1000 * rt.items[b].seconds_since_report
