@@ -1,8 +1,10 @@
 <h2>Speed IRL</h2>
 
-The movie Speed ( <a href="http://www.youtube.com/watch?v=aRmhneo5A48#t=1m10s">explained here</a> )
+Game using realtime bus locations for the city of Los Angeles.
 
-Using realtime bus data for the city of Los Angeles.
+The movie Speed <a href="http://www.youtube.com/watch?v=aRmhneo5A48#t=1m10s">explains the concept</a>
+
+Completely harmless web-based experiment ( HTML5, Node.js )
 
 <h3>Install</h3>
 
