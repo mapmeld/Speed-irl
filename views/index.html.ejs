@@ -4,7 +4,7 @@
 		<title>Speed. In. Real. Life.</title>
 		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
 		<script type="text/javascript">
-var map, infoWindow, buses, speedBus;
+var map, infoWindow, buses, speedBus, keanu;
 function init(){
 	// set up Google Maps, pointed at downtown LA
 	var ctr = new google.maps.LatLng(34.047114,-118.261925);
@@ -17,6 +17,13 @@ function init(){
 	map = new google.maps.Map(document.getElementById("map"), mapOptions);
 	setInterval( pollBuses, 40000 );
 	pollBuses();
+	
+	// add Keanu
+	keanu = new google.maps.Marker({
+		position: new google.maps.LatLng(34.093129,-118.325442),
+		icon: "http://i.imgur.com/5Dap2.jpg",
+		map: map
+	});
 }
 
 function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\\?&]"+nm+"=([^&#]*)";var rx=new RegExp(rxS);var rs=rx.exec(window.location.href);if(!rs){return null;}else{return rs[1];}}
