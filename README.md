@@ -6,6 +6,8 @@ The movie Speed <a href="http://www.youtube.com/watch?v=aRmhneo5A48#t=1m10s">exp
 
 Completely harmless web-based experiment ( HTML5, Node.js )
 
+<img src="http://i.imgur.com/mnL9v.png"/>
+
 <h3>Install</h3>
 
 Based on AlexeyPro's <a href="https://github.com/alexeypro/crud-bones">crud-bones</a> framework.
