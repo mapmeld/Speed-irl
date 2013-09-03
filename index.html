@@ -1,69 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>crud-bones by alexeypro</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<head>
+		<title>Speed. In. Real. Life.</title>
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
+		<script type="text/javascript">
+var map, infoWindow, buses, speedBus, keanu;
+function init(){
+	// set up Google Maps, pointed at downtown LA
+	var ctr = new google.maps.LatLng(34.047114,-118.261925);
+	var z = 12;
+	var mapOptions = {
+		center: ctr,
+		zoom: z,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	map = new google.maps.Map(document.getElementById("map"), mapOptions);
+	setInterval( pollBuses, 40000 );
+	pollBuses();
+	
+	// add Keanu
+	keanu = new google.maps.Marker({
+		position: new google.maps.LatLng(34.093129,-118.325442),
+		icon: "http://i.imgur.com/5Dap2.jpg",
+		map: map
+	});
+}
 
-  </head>
-  <body>
+function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\\?&]"+nm+"=([^&#]*)";var rx=new RegExp(rxS);var rs=rx.exec(window.location.href);if(!rs){return null;}else{return rs[1];}}
 
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/alexeypro/crud-bones">Fork On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/alexeypro/crud-bones/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/alexeypro/crud-bones/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
-
-    <div class="wrapper">
-
-      <section>
-        <div id="title">
-          <h1>crud-bones</h1>
-          <p>Boilerplate, template, skeleton or whatever-you-call-it base for your simple MySQL or Mongo-powered Node.JS project.</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/alexeypro">alexeypro</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
-        </div>
-
-        <h3>What the heck is that?</h3>
-
-<p>No, it's not an another framework. Chill. All this code is basically the template which I use to jump-start with new project. It has simplistic Model and DAO (MySQL and Mongo - which are interchangable, with Redis as an optional Cache), and all the usual set of Node.JS modules I like to use (I gathered them from across many forums, as the most stable and reliable). So, it saves me a ton of time. I clone it, and go from there. You can get simple CRUD right away, just change the model (yeah, it's very "opionionated"). And if you feel like you need something more sophisticated just change the code!</p>
-
-<h3>Any cool stuff there?</h3>
-
-<p>Cluster, Express, EJS, MySQL, Mongo, Redis, Configs, Logs... All the necessities. And it has the instructions how to be easily deployed to Heroku (I actually keep it there during development <a href="http://crud-bones-dev.herokuapp.com/">http://crud-bones-dev.herokuapp.com/</a>). Eventually, planning to add more third-party hosting providers (i.e. No.de, Nodejitsu and others), so you can deploy it wherever you like in the matter of seconds.</p>
-
-<h3>Who is the author?</h3>
-
-<p>Me, duh! Here is my GitHub account <a href="https://github.com/alexeypro" class="user-mention">@alexeypro</a>, and Twitter is <a href="http://twitter.com/alexeypro">http://twitter.com/alexeypro</a>. My web site lives here <a href="http://alexeypro.com">http://alexeypro.com</a> and mini-blog is right there <a href="http://words.alexeypro.com">http://words.alexeypro.com</a></p>
-      </section>
-
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-29753172-6");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
-  </body>
+function pollBuses(){
+	var myRoute = gup("route") || "460";
+	var s = document.createElement("script");
+	s.src = "http://api.metro.net/agencies/lametro/routes/" + myRoute + "/vehicles/callback=updateBuses";
+	s.type = "text/javascript";
+	document.body.appendChild(s);
+}
+var speed_est = { };
+var last_loc = { };
+var last_time = { };
+var markers = { };
+function updateBuses(rt){
+	var updateDate = new Date();
+	document.getElementById("allbuses").innerHTML = "";
+	for(var b=0;b<rt.items.length;b++){
+		var li = document.createElement("li");
+		if(!speed_est[ rt.items[b].id ]){
+			if(last_loc[ rt.items[b].id ] ){
+				// has at least one location to use...
+				// make an estimate, if the location is changed
+				if(last_loc[ rt.items[b].id ][0] != rt.items[b].latitude || last_loc[ rt.items[b].id ][1] != rt.items[b].longitude ){
+					speed_est[ rt.items[b].id ] = calcSpeed(last_loc[ rt.items[b].id ], last_time[ rt.items[b].id ], [ rt.items[b].latitude, rt.items[b].longitude ], updateDate - 1000 * rt.items[b].seconds_since_report );
+					li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] ) + " mph";
+				}
+				else{
+					li.innerHTML = rt.items[b].id;
+				}
+			}
+			else{
+				markers[ rt.items[b].id ] = new google.maps.Marker({
+					position: new google.maps.LatLng( rt.items[b].latitude, rt.items[b].longitude ),
+					map: map
+				});
+				li.innerHTML = rt.items[b].id;
+			}
+		}
+		else{
+			if(last_loc[ rt.items[b].id ][0] != rt.items[b].latitude || last_loc[ rt.items[b].id ][1] != rt.items[b].longitude ){
+				speed_est[ rt.items[b].id ] = calcSpeed(last_loc[ rt.items[b].id ], last_time[ rt.items[b].id ], [ rt.items[b].latitude, rt.items[b].longitude ], updateDate - 1000 * rt.items[b].seconds_since_report );
+				markers[ rt.items[b].id ].setMap(null);
+				markers[ rt.items[b].id ] = new google.maps.Marker({
+					position: new google.maps.LatLng( rt.items[b].latitude, rt.items[b].longitude ),
+					map: map
+				});
+			}
+			li.innerHTML = rt.items[b].id + ": " + Math.round( speed_est[ rt.items[b].id ] ) + " mph";
+		}
+		last_loc[ rt.items[b].id ] = [ rt.items[b].latitude , rt.items[b].longitude ];
+		last_time[ rt.items[b].id ] = updateDate - 1000 * rt.items[b].seconds_since_report
+		document.getElementById("allbuses").appendChild(li);
+	}
+}
+function calcSpeed(loc, time1, loc2, time2){
+	loc = new google.maps.LatLng( loc[0], loc[1] );
+	loc2 = new google.maps.LatLng( loc2[0], loc2[1] );
+	var dist = google.maps.geometry.spherical.computeDistanceBetween( loc, loc2 );
+	var timediff = time2 - time1;
+	var speed = (dist / timediff * 1000) * 2.23693629;
+	if(speed < 0 || speed > 100){
+		return 0;
+	}
+	return speed;
+}
+		</script>
+		<style type="text/css">
+html, body, #map{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: arial, sans-serif;
+}
+#overlay{
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+	width: 220px;
+	padding: 10px;
+	background-color: #fff;
+}
+		</style>
+	</head>
+	<body onload="init()">
+		<div id="map">
+		</div>
+		<div id="overlay">
+			<h4>Speed IRL</h4>
+			<p>Game using realtime bus locations and velocities in Los Angeles.</p>
+			<p>Get Keanu from Hollywood to the bus to save the day</p>
+			<p>Inspired by <a href="http://www.youtube.com/watch?v=aRmhneo5A48#t=1m10s">Speed</a></p>
+			<ul id="allbuses">
+			</ul>
+			Contact <a href="http://twitter.com/mapmeld">@mapmeld</a> for comments or take-down requests.
+		</div>
+	</body>
 </html>
